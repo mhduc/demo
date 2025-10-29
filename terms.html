@@ -1,44 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service</title>
+  <meta name="description" content="Official Terms of Service for [Your App Name]." />
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --card: #111418;
+      --text: #e6e8eb;
+      --muted: #b6bec9;
+      --accent: #4da3ff;
+      --border: #1c1f24;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
+      line-height: 1.6;
+      color: var(--text);
+      background: radial-gradient(1200px 800px at 80% -10%, rgba(77,163,255,0.15), transparent 60%),
+                  radial-gradient(1000px 700px at -10% 20%, rgba(146,83,255,0.12), transparent 60%),
+                  var(--bg);
+    }
+    .container {
+      max-width: 900px;
+      margin: 48px auto;
+      padding: 0 20px;
+    }
+    header {
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      line-height: 1.2;
+      margin: 0 0 8px 0;
+      letter-spacing: 0.2px;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    h2 {
+      font-size: 1.25rem;
+      margin: 24px 0 8px 0;
+      color: #ffffff;
+    }
+    p {
+      margin: 0 0 12px 0;
+    }
+    ul, ol {
+      margin: 12px 0 16px 20px;
+    }
+    code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+    footer {
+      color: var(--muted);
+      margin-top: 28px;
+      font-size: 0.9rem;
+    }
+    .pill {
+      display: inline-block;
+      background: rgba(77,163,255,0.12);
+      color: #cfe6ff;
+      border: 1px solid rgba(77,163,255,0.35);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .hr {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      border: 0;
+      margin: 24px 0;
+    }
+  </style>
 </head>
-
 <body>
-    <div>
-        # Terms of Service
+  <div class="container">
+    <header>
+      <h1>Terms of Service <span class="pill">Official</span></h1>
+      <div class="meta"><strong>Effective Date:</strong> October 29, 2025</div>
+    </header>
 
-        **Effective Date:** October 29, 2025
+    <main class="card">
+      <p>Welcome to <span class="mono">[Your App Name]</span> ("we", "our", "us"). By accessing or using our website and services, you agree to the following terms:</p>
 
-        Welcome to [Your App Name] ("we", "our", "us").
-        By accessing or using our website and services, you agree to the following terms:
+      <h2>1. Purpose</h2>
+      <p>Our platform is used for data analysis and research purposes. We only collect and process publicly available data in compliance with TikTok’s Developer Terms.</p>
 
-        1. **Purpose**
-        Our platform is used for data analysis and research purposes. We only collect and process publicly available
-        data in compliance with TikTok’s Developer Terms.
+      <h2>2. Data Usage</h2>
+      <p>We do not sell, share, or redistribute any personal data obtained through TikTok APIs. All data access complies with TikTok’s Research API policies.</p>
 
-        2. **Data Usage**
-        We do not sell, share, or redistribute any personal data obtained through TikTok APIs.
-        All data access complies with TikTok’s Research API policies.
+      <h2>3. Intellectual Property</h2>
+      <p>All content, software, and data visualizations produced by our system remain our intellectual property unless stated otherwise.</p>
 
-        3. **Intellectual Property**
-        All content, software, and data visualizations produced by our system remain our intellectual property unless
-        stated otherwise.
+      <h2>4. Limitation of Liability</h2>
+      <p>We are not responsible for any damages arising from the use of data or the service.</p>
 
-        4. **Limitation of Liability**
-        We are not responsible for any damages arising from the use of data or the service.
+      <h2>5. Changes</h2>
+      <p>We may update these Terms periodically. Continued use of the service means you accept those updates.</p>
 
-        5. **Changes**
-        We may update these Terms periodically. Continued use of the service means you accept those updates.
+      <h2>6. Contact</h2>
+      <p>For questions or concerns, contact us at: <a href="mailto:yourname@yourdomain.com">yourname@yourdomain.com</a></p>
 
-        6. **Contact**
-        For questions or concerns, contact us at:
-        📧 yourname@yourdomain.com
-
-    </div>
+      <hr class="hr" />
+      <footer>
+        &copy; <span id="year"></span> [Your App Name]. All rights reserved.
+      </footer>
+    </main>
+  </div>
+  <script>
+    // Set current year automatically
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
-
 </html>
