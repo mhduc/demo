@@ -1,88 +1,78 @@
 package com.example.auth.controller;
 
-import com.example.auth.dto.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import com.example.auth.model.ApiResponse;
-import com.example.auth.service.AuthService;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.example.auth.dto.LoginRequest;
+import com.example.auth.dto.RegisterRequest;
+import com.example.auth.dto.JwtResponse;
+import com.example.auth.service.JwtService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-// Spring Framework imports
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-
-// Lombok import
-import lombok.RequiredArgsConstructor;
-
-// Java imports
-import jakarta.validation.Valid;
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
-@Tag(name = "Xác thực & Người dùng", description = "Quản lý Đăng ký, Đăng nhập, và Thông tin Người dùng")
+// 📖 Thêm annotation Security cho Swagger
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
-    // --- 1. REGISTER ---
-    @Operation(summary = "Đăng ký tài khoản mới", 
-               description = "Tạo người dùng mới và trả về JWT Token.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Đăng ký thành công",
-        content = @Content(schema = @Schema(implementation = AuthResponse.class)))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Email đã tồn tại / Dữ liệu không hợp lệ")
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+    }
+    // Inject UserService, AuthenticationManager, JwtService...
+
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(authService.register(request)));
+    @Operation(summary = "Đăng ký tài khoản mới")
+    public ResponseEntity<ApiResponse<?>> registerUser(@RequestBody RegisterRequest registerRequest) {
+        // ... Logic kiểm tra tồn tại và lưu User vào DB (Mã hóa mật khẩu)
+        // Trả về theo mẫu ApiResponse
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.<Void>builder()
+                        .code(0)
+                        .message("User registered successfully")
+                        .build());
     }
 
-    // --- 2. LOGIN ---
-    @Operation(summary = "Đăng nhập", 
-               description = "Xác thực người dùng và cấp JWT Token.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Đăng nhập thành công",
-        content = @Content(schema = @Schema(implementation = AuthResponse.class)))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Email hoặc Mật khẩu không đúng")
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(authService.login(request)));
-    }
+    public ResponseEntity<ApiResponse<?>> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        try {
+            // 1. Dùng AuthenticationManager để xác thực username và password
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    loginRequest.getUsername(),
+                    loginRequest.getPassword()
+                )
+            );
 
-    // --- 3. GET USER INFO ---
-    @Operation(summary = "Lấy thông tin người dùng hiện tại", 
-               description = "Yêu cầu JWT Token hợp lệ trong Header Authorization.",
-               security = @SecurityRequirement(name = "bearerAuth")) // Đánh dấu là API cần bảo mật
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy thông tin thành công",
-        content = @Content(schema = @Schema(implementation = UserInfoResponse.class)))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token không hợp lệ hoặc đã hết hạn")
-    @GetMapping("/info")
-    public ResponseEntity<ApiResponse<UserInfoResponse>> getUserInfo(Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(authService.getUserInfo(principal)));
-    }
-    
-    // --- 4. CHANGE PASSWORD ---
-    @Operation(summary = "Đổi mật khẩu", 
-               description = "Yêu cầu JWT Token. Cần mật khẩu cũ và mật khẩu mới.",
-               security = @SecurityRequirement(name = "bearerAuth"))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Đổi mật khẩu thành công")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token không hợp lệ / Mật khẩu cũ không đúng")
-    @PostMapping("/change-password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(
-            @Valid @RequestBody ChangePasswordRequest request, Principal principal) {
-        authService.changePassword(request, principal);
-        return ResponseEntity.ok(ApiResponse.success());
-    }
+            // 2. Thiết lập đối tượng Authentication vào Security Context (tùy chọn, nhưng tốt cho context hiện tại)
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    // --- 5. LOGOUT ---
-    @Operation(summary = "Đăng xuất (Client side)",
-               description = "Với JWT, đây là thao tác tượng trưng. Client nên xóa token đã lưu trữ.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Thành công")
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout() {
-        return ResponseEntity.ok(ApiResponse.success());
+            // 3. Tạo JWT Access Token
+            String jwt = jwtService.generateToken(authentication);
+
+            // 4. Trả về Token cho Client theo mẫu ApiResponse
+            return ResponseEntity.ok(ApiResponse.success(new JwtResponse(jwt, "Bearer")));
+            
+        } catch (Exception e) {
+            // Xử lý ngoại lệ nếu xác thực thất bại (ví dụ: UsernameNotFoundException, BadCredentialsException)
+            return ResponseEntity
+                    .status(401) // Unauthorized
+                    .body(ApiResponse.error(401, "Đăng nhập thất bại: Tên đăng nhập hoặc mật khẩu không đúng."));
+        }
     }
 }

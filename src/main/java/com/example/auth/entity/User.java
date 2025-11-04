@@ -1,41 +1,62 @@
 package com.example.auth.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Collection;
-import java.util.Collections;
 
-@Data
-@Builder
+import java.util.Collection;
+import java.util.List;
+
+@Data // Lombok: Tự động tạo Getters, Setters, toString, equals/hashCode
+@Builder // Lombok: Cho phép dùng cú pháp Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String fullName;
-    @Column(unique = true)
-    private String email;
-    private String password;
 
-    // Các phương thức của UserDetails để tích hợp với Spring Security
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password; // Lưu trữ mật khẩu đã được BCrypt mã hóa
+
+    private String email;
+
+    private String fullname;
+    
+    // 🏷️ Trường Role
+    @Enumerated(EnumType.STRING)
+    private Role role; // Ví dụ: USER, ADMIN
+
+    // --- Triển khai UserDetails interface ---
+
+    // 1. Cung cấp Authorities/Roles của người dùng
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // Đơn giản hóa, không dùng role
+        String roleName = (role == null) ? "UNKNOWN" : role.name();
+        return List.of(new SimpleGrantedAuthority("ROLE_" + roleName));
     }
 
+    // 2. Tên đăng nhập
     @Override
     public String getUsername() {
-        return this.email; // Dùng email làm username
+        return username;
+    }
+
+    // 3. Mật khẩu
+    @Override
+    public String getPassword() {
+        return password;
     }
     
+    // 4. Các phương thức kiểm tra trạng thái tài khoản (nên giữ mặc định là true)
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -55,5 +76,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-    // Các phương thức isAccountNonExpired, isAccountNonLocked, etc. trả về true
 }

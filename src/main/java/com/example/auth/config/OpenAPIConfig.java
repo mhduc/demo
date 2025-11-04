@@ -1,35 +1,28 @@
 package com.example.auth.config;
 
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springframework.context.annotation.Bean;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+// Định nghĩa thông tin chung của API
+@OpenAPIDefinition(
+    info = @Info(
+        title = "Auth API (JWT) Documentation", 
+        version = "1.0",
+        description = "Tài liệu hóa các API xác thực và quản lý người dùng."
+    )
+)
+// 💡 Định nghĩa Security Scheme (Bearer Token)
+@SecurityScheme(
+  name = "Bearer Authentication", // Tên tham chiếu
+  type = SecuritySchemeType.HTTP,
+  bearerFormat = "JWT",
+  scheme = "bearer",
+  description = "Nhập JWT Access Token vào đây (ví dụ: 'eyJhbGciOiJIUzI1NiIsInR5c...')"
+)
 public class OpenAPIConfig {
-
-    @Bean
-    public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "bearerAuth";
-        return new OpenAPI()
-            .addSecurityItem(new SecurityRequirement().addList(securitySchemeName)) // Yêu cầu bảo mật
-            .components(new Components()
-                .addSecuritySchemes(securitySchemeName,
-                    new SecurityScheme()
-                        .name(securitySchemeName)
-                        .type(SecurityScheme.Type.HTTP)
-                        .scheme("bearer")
-                        .bearerFormat("JWT")
-                        .description("Nhập JWT Token vào đây (ví dụ: Bearer eyJhbGci... )")
-                )
-            )
-            .info(new Info()
-                .title("Authentication API Service")
-                .version("1.0")
-                .description("Tài liệu cho các API Xác thực và Quản lý Người dùng.")
-            );
-    }
+    // Class này chỉ cần các annotations để cấu hình
 }

@@ -32,21 +32,21 @@ public class AuthService {
             throw new IllegalStateException("Email already in use");
         }
         var user = User.builder()
-                .fullName(request.getFullName())
+                .fullname(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
+        var authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+        var jwtToken = jwtService.generateToken(authentication);
         return AuthResponse.builder().token(jwtToken).build();
     }
 
     public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        var authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(authentication);
         return AuthResponse.builder().token(jwtToken).build();
     }
     
@@ -54,7 +54,7 @@ public class AuthService {
         var user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         return UserInfoResponse.builder()
             .id(user.getId())
-            .fullName(user.getFullName())
+            .fullName(user.getFullname())
             .email(user.getEmail())
             .build();
     }
@@ -62,7 +62,7 @@ public class AuthService {
     public void changePassword(ChangePasswordRequest request, Principal principal) {
         var user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         // Kiểm tra mật khẩu cũ
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new IllegalStateException("Wrong old password");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));

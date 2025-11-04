@@ -9,9 +9,10 @@ import lombok.Data;
 public class RegisterRequest {
     @NotBlank
     private String fullName;
+    private String email;
     @Email
     @NotBlank
-    private String email;
+    private String username;
     @NotBlank
     @Size(min = 6)
     private String password;

@@ -12,7 +12,7 @@ public class LoginRequest {
     @Email 
     @NotBlank
     @Schema(description = "Địa chỉ email của người dùng", example = "john.doe@example.com")
-    private String email;
+    private String username;
     
     @NotBlank
     @Schema(description = "Mật khẩu", example = "Pa$$w0rd")
