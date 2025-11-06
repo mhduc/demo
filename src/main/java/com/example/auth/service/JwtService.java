@@ -21,10 +21,21 @@ public class JwtService {
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshExpiration;
+
     /**
      * 1. Tạo JWT Token từ đối tượng Authentication
      */
     public String generateToken(Authentication authentication) {
+        return generateToken(authentication, jwtExpiration);
+    }
+
+    public String generateRefreshToken(Authentication authentication) {
+        return generateToken(authentication, refreshExpiration);
+    }
+
+    private String generateToken(Authentication authentication, long expiration) {
         // Lấy UserDetails từ đối tượng Authentication
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         
@@ -34,7 +45,7 @@ public class JwtService {
             // 📅 Thời gian tạo
             .setIssuedAt(new Date(System.currentTimeMillis()))
             // ⏱️ Thời gian hết hạn
-            .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+            .setExpiration(new Date(System.currentTimeMillis() + expiration))
             // 🔐 Ký Token bằng khóa bí mật
             .signWith(getSignInKey(), SignatureAlgorithm.HS256)
             .compact();

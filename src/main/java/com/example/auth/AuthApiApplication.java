@@ -36,7 +36,7 @@ public class AuthApiApplication {
                         // 🔒 Mã hóa mật khẩu
                         .password(passwordEncoder.encode("admin123")) 
                         // 🏷️ Gán Role ADMIN
-                        .role(Role.ADMIN) 
+                        .role(Role.ADMIN)
                         .build();
 
                 // 2. Lưu vào Database

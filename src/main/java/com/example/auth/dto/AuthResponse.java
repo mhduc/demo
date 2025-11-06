@@ -9,7 +9,11 @@ import lombok.Data;
 @Builder
 public class AuthResponse {
     
-    @Schema(description = "Token JWT để xác thực các request sau này", 
+    @Schema(description = "Access token JWT để xác thực các request sau này", 
             example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yP")
-    private String token;
+    private String accessToken;
+
+    @Schema(description = "Refresh token để lấy access token mới khi hết hạn",
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yP")
+    private String refreshToken;
 }

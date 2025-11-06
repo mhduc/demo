@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import com.example.auth.util.RandomString; // Import utility
 
 import java.util.Collection;
 import java.util.List;
@@ -16,10 +17,10 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(unique = true, nullable = false)
     private String username;
@@ -30,10 +31,13 @@ public class User implements UserDetails {
     private String email;
 
     private String fullname;
-    
+
     // 🏷️ Trường Role
-    @Enumerated(EnumType.STRING)
+    @Column(name = "role", columnDefinition = "SMALLINT")
     private Role role; // Ví dụ: USER, ADMIN
+
+    @Column(name = "auth_key", nullable = false, length = 64)
+    private String authKey;
 
     // --- Triển khai UserDetails interface ---
 
@@ -55,7 +59,7 @@ public class User implements UserDetails {
     public String getPassword() {
         return password;
     }
-    
+
     // 4. Các phương thức kiểm tra trạng thái tài khoản (nên giữ mặc định là true)
     @Override
     public boolean isAccountNonExpired() {
@@ -75,5 +79,16 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    /**
+     * Hook/Callback được gọi trước khi Entity được lưu (Persist) lần đầu.
+     * Đảm bảo authKey được tạo trước khi INSERT.
+     */
+    @PrePersist
+    protected void onCreate() {
+        if (this.authKey == null) {
+            this.authKey = RandomString.generateAuthKey();
+        }
     }
 }
